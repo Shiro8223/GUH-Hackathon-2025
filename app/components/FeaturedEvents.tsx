@@ -46,7 +46,7 @@ return (
 <section id="#events" className="mx-auto max-w-6xl px-4 py-12">
 <div className="mb-4 flex items-end justify-between">
 <h2 className="text-2xl font-bold">Opposites for you</h2>
-<a href="#events" className="text-sm underline">See all</a>
+<a href="/events" className="text-sm underline">See all</a>
 </div>
 <div className="grid gap-6 md:grid-cols-3">
 {mock.map((e) => (
