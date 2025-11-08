@@ -53,7 +53,6 @@ export default function SubmitEventPage() {
     setErrors(errs);
     if (errs.length) return;
 
-    // ✅ Build the event object (NO JSX here)
     const event: Event = {
       id: crypto.randomUUID(),
       title: title.trim(),
@@ -67,7 +66,6 @@ export default function SubmitEventPage() {
       isOppositeOfUserMajor: false, // calculated per user later
     };
 
-    // Demo persistence
     const raw = localStorage.getItem("bubble.events");
     const arr = raw ? (JSON.parse(raw) as Event[]) : [];
     arr.push(event);
@@ -88,20 +86,22 @@ export default function SubmitEventPage() {
         <p className="mb-6 text-slate-600">Fill in the details below. Events save locally for the demo.</p>
 
         {errors.length > 0 && (
-          <div className="mb-4 rounded-xl border border-blue-300 bg-blue-50 p-3 text-sm text-red-700">
-            <ul className="list-disc pl-5">{errors.map((er, i) => <li key={i}>{er}</li>)}</ul>
+          <div className="mb-4 rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 p-4 text-sm shadow-sm">
+            <ul className="list-disc pl-5 text-red-700">
+              {errors.map((er, i) => <li key={i}>{er}</li>)}
+            </ul>
           </div>
         )}
 
         {submittedId && (
-          <div className="mb-4 rounded-xl border border-blue-300 bg-blue-50 p-3 text-sm">
+          <div className="mb-4 rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 p-4 text-sm shadow-sm">
             <b>Event saved!</b> View it on <a className="underline" href="/events">the Events page</a>.
           </div>
         )}
 
         <form onSubmit={onSubmit} className="grid gap-6 md:grid-cols-2">
           {/* Left column */}
-          <section className="rounded-2xl border border-blue-200 bg-blue-50 p-5">
+          <section className="rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 p-5 shadow-sm">
             <h2 className="text-lg font-semibold">Basics</h2>
             <div className="mt-4 space-y-4">
               <label className="block text-sm">
@@ -109,8 +109,9 @@ export default function SubmitEventPage() {
                 <input
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full rounded-xl border border-blue-300 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-blue-300"
+                  className="w-full rounded-xl border border-blue-300 bg-white px-3 py-2 outline-none transition focus:ring-2 focus:ring-blue-300"
                   placeholder="e.g. Intro to 3D Printing"
+                  aria-required
                 />
               </label>
 
@@ -119,7 +120,7 @@ export default function SubmitEventPage() {
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="h-24 w-full rounded-xl border border-blue-300 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-blue-300"
+                  className="h-28 w-full rounded-xl border border-blue-300 bg-white px-3 py-2 outline-none transition focus:ring-2 focus:ring-blue-300"
                   placeholder="What should attendees expect?"
                 />
               </label>
@@ -131,7 +132,8 @@ export default function SubmitEventPage() {
                     type="datetime-local"
                     value={dateISO}
                     onChange={(e) => setDateISO(e.target.value)}
-                    className="w-full rounded-xl border border-blue-300 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-blue-300"
+                    className="w-full rounded-xl border border-blue-300 bg-white px-3 py-2 outline-none transition focus:ring-2 focus:ring-blue-300"
+                    aria-required
                   />
                 </label>
                 <label className="block text-sm">
@@ -139,8 +141,9 @@ export default function SubmitEventPage() {
                   <input
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
-                    className="w-full rounded-xl border border-blue-300 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-blue-300"
+                    className="w-full rounded-xl border border-blue-300 bg-white px-3 py-2 outline-none transition focus:ring-2 focus:ring-blue-300"
                     placeholder="e.g. Manchester"
+                    aria-required
                   />
                 </label>
               </div>
@@ -150,7 +153,7 @@ export default function SubmitEventPage() {
                 <input
                   value={tagsText}
                   onChange={(e) => setTagsText(e.target.value)}
-                  className="w-full rounded-xl border border-blue-300 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-blue-300"
+                  className="w-full rounded-xl border border-blue-300 bg-white px-3 py-2 outline-none transition focus:ring-2 focus:ring-blue-300"
                   placeholder="STEM, Makers, Robotics"
                 />
               </label>
@@ -158,28 +161,40 @@ export default function SubmitEventPage() {
           </section>
 
           {/* Right column */}
-          <section className="rounded-2xl border border-blue-200 bg-blue-50 p-5">
+          <section className="rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 p-5 shadow-sm">
             <h2 className="text-lg font-semibold">Audience & pricing</h2>
             <div className="mt-4 space-y-4">
               <div>
                 <span className="mb-2 block text-sm">Recommended majors</span>
                 <div className="grid grid-cols-2 gap-2">
-                  {MAJORS.map((m) => (
-                    <label key={m} className="flex items-center gap-2 rounded-lg border border-blue-200 bg-white p-2">
-                      <input
-                        type="checkbox"
-                        checked={recommendedMajors.includes(m)}
-                        onChange={() => toggleMajor(m)}
-                      />
-                      <span className="text-sm">{m}</span>
-                    </label>
-                  ))}
+                  {MAJORS.map((m) => {
+                    const checked = recommendedMajors.includes(m);
+                    return (
+                      <label
+                        key={m}
+                        className="flex items-center gap-2 rounded-xl border border-blue-200 bg-white p-2 transition hover:shadow-sm"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => toggleMajor(m)}
+                          className="accent-blue-600"
+                        />
+                        <span className="text-sm">{m}</span>
+                      </label>
+                    );
+                  })}
                 </div>
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="flex items-center gap-2 text-sm">
-                  <input type="checkbox" checked={isPaid} onChange={(e) => setIsPaid(e.target.checked)} />
+                  <input
+                    type="checkbox"
+                    checked={isPaid}
+                    onChange={(e) => setIsPaid(e.target.checked)}
+                    className="accent-blue-600"
+                  />
                   Paid event
                 </label>
                 <label className="block text-sm">
@@ -191,7 +206,7 @@ export default function SubmitEventPage() {
                     disabled={!isPaid}
                     value={priceGBP}
                     onChange={(e) => setPriceGBP(parseFloat(e.target.value))}
-                    className="w-full rounded-xl border border-blue-300 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-60"
+                    className="w-full rounded-xl border border-blue-300 bg-white px-3 py-2 outline-none transition focus:ring-2 focus:ring-blue-300 disabled:opacity-60"
                   />
                 </label>
               </div>
@@ -201,7 +216,7 @@ export default function SubmitEventPage() {
                 <select
                   value={distanceBucket}
                   onChange={(e) => setDistanceBucket(e.target.value as DistanceBucket)}
-                  className="w-full rounded-xl border border-blue-300 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-blue-300"
+                  className="w-full rounded-xl border border-blue-300 bg-white px-3 py-2 outline-none transition focus:ring-2 focus:ring-blue-300"
                 >
                   <option value="local">Local</option>
                   <option value="nearby">Nearby</option>
@@ -210,26 +225,36 @@ export default function SubmitEventPage() {
               </label>
 
               {/* Bubble points preview */}
-              <div className="rounded-xl border border-blue-300 bg-white p-3 text-sm">
+              <div className="rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 p-4 shadow-sm">
                 <div className="mb-2 flex items-center justify-between">
-                  <span>Bubble Points (preview)</span>
-                  <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs">+{previewPoints} pts</span>
+                  <span className="text-sm">Bubble Points (preview)</span>
+                  <span className="rounded-full bg-gradient-to-br from-blue-100 to-blue-200 px-2 py-0.5 text-xs font-medium">
+                    +{previewPoints} pts
+                  </span>
                 </div>
-                <label className="flex items-center gap-2">
+                <label className="flex items-center gap-2 text-sm">
                   <input
                     type="checkbox"
                     checked={previewOpposite}
                     onChange={(e) => setPreviewOpposite(e.target.checked)}
+                    className="accent-blue-600"
                   />
                   Assume attendee is outside the recommended major
                 </label>
-                <p className="mt-1 text-xs text-slate-600">Actual points are computed per attendee at check-in.</p>
+                <p className="mt-1 text-xs text-slate-600">
+                  Actual points are computed per attendee at check-in.
+                </p>
               </div>
             </div>
           </section>
 
           <div className="md:col-span-2 flex items-center gap-3">
-            <button type="submit" className="rounded-xl bg-blue-600 px-5 py-2 text-white">Submit event</button>
+            <button
+              type="submit"
+              className="rounded-xl bg-blue-600 px-5 py-2 text-white shadow-sm transition hover:shadow-md hover:-translate-y-0.5"
+            >
+              Submit event
+            </button>
             <a href="/events" className="text-sm underline">Go to Events</a>
           </div>
         </form>
