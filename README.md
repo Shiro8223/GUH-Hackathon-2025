@@ -1,43 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
-// 1) npm i next@latest react react-dom typescript tailwindcss postcss autoprefixer lucide-react
-// 2) npx tailwindcss init -p (ensure globals.css has Tailwind base/components/utilities)
-// 3) Start hacking: `npm run dev`
-// Future: wire up auth, events CRUD, recommendation API, and ticket discounts using computeBubblePoints.
+- npm i next@latest react react-dom typescript tailwindcss postcss autoprefixer lucide-react
+- npx tailwindcss init -p (ensure globals.css has Tailwind base/components/utilities)-/ 3) Start hacking: `npm run dev`
+- Future: wire up auth, events CRUD, recommendation API, and ticket discounts using computeBubblePoints.
 
-First, run the development server:
+# 🌐 Bubble — Pop Your Bubble.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+**Bubble** is a social discovery web app that encourages university students to *meet people outside their course*.  
+It recommends events **outside your major** and **comfort zone**, rewarding you with **Bubble Points** when you show up.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+> Opposites attract: Art meets STEM, Business meets Theatre — and more.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## ✨ Features
 
-## Learn More
+### 🧭 Discover & Attend
+- Browse curated events that *oppose* your field of study.
+- Filter by distance (`local`, `nearby`, `city-away`).
+- Earn **Bubble Points** for going outside your comfort zone — use them to discount paid tickets.
 
-To learn more about Next.js, take a look at the following resources:
+### 🧑‍🎓 Organise & Submit Events
+- Create and preview events directly in the browser.
+- Each event dynamically calculates Bubble Points based on:
+  - Distance from your location
+  - Whether it’s outside your major
+- Data is saved locally (demo mode).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 🔄 Authentication (Demo)
+- Dynamic **Sign In / Sign Up** system with the same clean Bubble styling.
+- Stores user profile locally (name, email, and major).
+- Easily toggle between Sign In and Sign Up modes on a single page.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 💡 UX & UI
+- Cohesive **blue gradient theme** across all components.
+- Fully responsive layout using **Tailwind CSS** and **Lucide React icons**.
+- Gradient-backed “widgets” unify the aesthetic.
+- Soft hover lifts, rounded cards, and consistent typography for a welcoming student vibe.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🛠️ Tech Stack
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Technology | Purpose |
+|-------------|----------|
+| **Next.js (App Router)** | Framework for pages, routing, and server rendering |
+| **React** | Component-driven UI |
+| **TypeScript** | Type safety and cleaner code |
+| **Tailwind CSS** | Fast, responsive styling |
+| **Lucide React** | Icon set (e.g. Sparkles, Mail, Lock) |
+| **LocalStorage** | Demo data persistence (profile, events) |
 
-# GUH-Hackathon-2025
-Team: Dog knights goated submission
+---
+
+## TO DO
+
+- Login and Signup redirects to the profile page
+- profile page displays: 
+    - bubble points
+    - previously attended events
+    - discounts available
+    - profile picture
+    - RSVP'd Events
+
+- Event page.tsx needs filtering settings
+- Images for Events (image scaling/sizing)
+- Organizer event submission actually works
+
