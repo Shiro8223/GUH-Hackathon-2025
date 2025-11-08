@@ -24,3 +24,7 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Ensure anchors stop below the sticky navbar (adjust value to your header height) */
+html { scroll-padding-top: 80px; }
+

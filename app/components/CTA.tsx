@@ -9,7 +9,7 @@ reduce ticket prices for paid events.
 </p>
 <div className="mt-6 flex flex-wrap gap-3">
 <a href="#" className="rounded-2xl bg-blue-600 px-5 py-3 text-white">Create account</a>
-<a href="#organisers" className="rounded-2xl border border-blue-300 px-5 py-3">For organisers</a>
+<a href="/organisers" className="rounded-2xl border border-blue-300 px-5 py-3">For organisers</a>
 </div>
 </div>
 </section>
