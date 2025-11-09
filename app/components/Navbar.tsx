@@ -89,7 +89,7 @@ export function Navbar() {
             open ? "flex flex-col space-y-3 mt-4" : "hidden"
           } md:flex md:flex-row md:items-center md:space-y-0 md:space-x-6`}
         >
-          <Link href="#how" className="text-slate-700 hover:text-slate-900 transition-colors">
+          <Link href="/" className="text-slate-700 hover:text-slate-900 transition-colors">
             How it works
           </Link>
           <Link href="/events" className="text-slate-700 hover:text-slate-900 transition-colors">
