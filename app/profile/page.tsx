@@ -165,7 +165,7 @@ export default function ProfilePage() {
                       <img src={ev.imageUrl} className="h-14 w-24 rounded-md object-cover" alt={ev.title} />
                       <div className="flex-1">
                         <div className="font-medium">{ev.title}</div>
-                        <div className="text-xs text-slate-500">{formatDate(ev.dateISO)} • {ev.city}</div>
+                        <div className="text-xs text-black text-slate-500">{formatDate(ev.dateISO)} • {ev.city}</div>
                       </div>
                       <div className="flex flex-col items-end gap-2">
                         <div className="text-sm font-semibold">{ev.priceGBP === 0 ? "Free" : `£${ev.priceGBP}`}</div>

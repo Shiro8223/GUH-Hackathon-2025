@@ -129,7 +129,7 @@ export function Navbar() {
           {profileName ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="gap-2">
+                <Button variant="outline" className="gap-2 text-black">
                   <User className="h-4 w-4" />
                   {profileName}
                 </Button>

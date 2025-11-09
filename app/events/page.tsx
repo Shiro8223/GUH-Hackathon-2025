@@ -14,7 +14,7 @@ async function getEvents(): Promise<Event[]> {
   });
 
   // Parse JSON strings back to arrays and convert to Event type
-  return events.map((event) => ({
+  return events.map((event: Awaited<ReturnType<typeof prisma.event.findMany>>[number]) => ({
     id: event.id,
     title: event.title,
     dateISO: event.dateISO,

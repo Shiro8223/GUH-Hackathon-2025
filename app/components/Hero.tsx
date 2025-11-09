@@ -88,7 +88,7 @@ export function Hero() {
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg">
+            <Button asChild variant="outline" size="lg" className="text-black">
               <Link href="/organisers">Create an event</Link>
             </Button>
           </motion.div>
@@ -109,7 +109,7 @@ export function Hero() {
           initial="initial"
           animate="animate"
           variants={stagger}
-          className="grid grid-cols-2 gap-4"
+          className="grid grid-cols-2 gap-4 text-black"
         >
           <EventWidget
             title="Tonight · 19:00"
