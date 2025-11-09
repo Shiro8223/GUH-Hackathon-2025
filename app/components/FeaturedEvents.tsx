@@ -1,19 +1,17 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
+import { motion } from "framer-motion";
+import { ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { EventCard, type Event } from "../components/EventCard";
 
-const mock: Event[] = [
-  { id: "1", title: "Intro to 3D Printing", dateISO: new Date().toISOString(), city: "Manchester", tags: ["STEM", "Makers"], recommendedMajors: ["Art & Design", "Business"], isPaid: false, distanceBucket: "city-away", priceGBP: 0, isOppositeOfUserMajor: true },
-  { id: "2", title: "Improv Comedy Jam", dateISO: new Date(Date.now() + 86400000).toISOString(), city: "Manchester", tags: ["Arts", "Performance"], recommendedMajors: ["Computer Science", "Engineering"], isPaid: true, priceGBP: 6, distanceBucket: "nearby", isOppositeOfUserMajor: true },
-  { id: "3", title: "Finance for Founders", dateISO: new Date(Date.now() + 2 * 86400000).toISOString(), city: "Salford", tags: ["Business", "Startups"], recommendedMajors: ["Theatre", "Fine Art"], isPaid: false, distanceBucket: "local", priceGBP: 0, isOppositeOfUserMajor: false },
-  { id: "4", title: "Urban Sketching Walk", dateISO: new Date(Date.now() + 3 * 86400000).toISOString(), city: "Liverpool", tags: ["Art", "Photography"], recommendedMajors: ["STEM", "Business"], isPaid: false, distanceBucket: "city-away", priceGBP: 0, isOppositeOfUserMajor: true },
-  { id: "5", title: "AI in Healthcare Symposium", dateISO: new Date(Date.now() + 4 * 86400000).toISOString(), city: "Manchester", tags: ["Technology", "Healthcare"], recommendedMajors: ["Medicine", "Computer Science"], isPaid: true, priceGBP: 25, distanceBucket: "nearby", isOppositeOfUserMajor: false },
-  { id: "6", title: "Sustainable Fashion Workshop", dateISO: new Date(Date.now() + 5 * 86400000).toISOString(), city: "Salford", tags: ["Fashion", "Sustainability"], recommendedMajors: ["Environmental Science", "Fashion Design"], isPaid: true, priceGBP: 12, distanceBucket: "local", isOppositeOfUserMajor: true },
-  { id: "7", title: "Game Development Hackathon", dateISO: new Date(Date.now() + 6 * 86400000).toISOString(), city: "Manchester", tags: ["Gaming", "Technology"], recommendedMajors: ["Computer Science", "Digital Arts"], isPaid: false, priceGBP: 0, distanceBucket: "nearby", isOppositeOfUserMajor: false },
-];
+type Props = {
+  events: Event[];
+};
 
-export function FeaturedEvents() {
+export function FeaturedEvents({ events }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const isDraggingRef = useRef(false);
   const startXRef = useRef(0);
@@ -85,21 +83,32 @@ export function FeaturedEvents() {
     };
   }, []);
 
-  const items = [...mock, ...mock];
+  const items = [...events, ...events];
 
   return (
-    <section id="events" className="w-full py-16 bg-gradient-to-b from-white to-gray-50">
-      <div className="mx-auto max-w-6xl px-4 mb-8 flex items-end justify-between">
-        <div>
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
-            Opposites for you
-          </h2>
-          <p className="text-gray-600 mt-2">Discover events outside your comfort zone</p>
+    <section id="events" className="w-full py-20 bg-linear-to-b from-background to-muted/20">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+        className="mx-auto max-w-6xl px-4 mb-8"
+      >
+        <div className="flex items-end justify-between">
+          <div>
+            <h2 className="text-4xl font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+              Opposites for you
+            </h2>
+            <p className="text-muted-foreground text-lg">Discover events outside your comfort zone</p>
+          </div>
+          <Button asChild variant="ghost" className="gap-2">
+            <Link href="/events">
+              See all
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
         </div>
-        <a href="/events" className="text-sm btn btn-ghost hover:bg-blue-50 transition-colors">
-          See all events →
-        </a>
-      </div>
+      </motion.div>
 
       <div className="relative">
         <div ref={containerRef} 
@@ -109,16 +118,16 @@ export function FeaturedEvents() {
                style={{ width: 'max-content', WebkitUserSelect: 'none', userSelect: 'none' }}>
             {items.map((e, i) => (
               <div key={`${e.id}-${i}`} 
-                   className="transform transition-transform hover:scale-[1.02] hover:-translate-y-1"
-                   style={{ minWidth: '300px', flex: '0 0 auto' }}>
+                   className="transform transition-transform"
+                   style={{ minWidth: '320px', flex: '0 0 auto' }}>
                 <EventCard e={e} />
               </div>
             ))}
           </div>
         </div>
         
-        <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white to-transparent pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-12 bg-linear-to-r from-background to-transparent pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-12 bg-linear-to-l from-background to-transparent pointer-events-none" />
       </div>
     </section>
   );

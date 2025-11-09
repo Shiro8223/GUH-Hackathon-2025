@@ -1,13 +1,20 @@
 "use client";
 import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
-import { Menu, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Menu, X, Sparkles, Calendar, Users, User, LogOut } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const [profileName, setProfileName] = useState<string | null>(null);
-  const [openMenu, setOpenMenu] = useState(false);
-  const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     try {
@@ -19,6 +26,15 @@ export function Navbar() {
     } catch (e) {
       setProfileName(null);
     }
+  }, []);
+
+  // Scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   // Listen for storage events (other tabs) and custom bubble:auth event (same tab)
@@ -37,7 +53,6 @@ export function Navbar() {
 
     function onCustom(e: Event) {
       try {
-        // @ts-ignore
         const user = (e as CustomEvent).detail;
         setProfileName(user?.name ?? null);
       } catch (err) {
@@ -53,84 +68,183 @@ export function Navbar() {
     };
   }, []);
 
-  // close menu on outside click
-  useEffect(() => {
-    function onDocClick(e: MouseEvent) {
-      if (!wrapperRef.current) return;
-      if (!wrapperRef.current.contains(e.target as Node)) setOpenMenu(false);
+  const handleSignOut = () => {
+    try {
+      localStorage.removeItem("bubble.profile");
+      window.dispatchEvent(new CustomEvent("bubble:auth", { detail: null }));
+    } catch (e) {
+      // ignore
     }
-    document.addEventListener("click", onDocClick);
-    return () => document.removeEventListener("click", onDocClick);
-  }, []);
+    window.location.href = "/";
+  };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-slate-100 bg-white/95 backdrop-blur-lg">
-      <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-        {/* Logo */}
-        <Link
-          href="/"
-          className="text-2xl font-extrabold tracking-tight text-blue-600 hover:text-blue-700 transition-colors"
-        >
-          bubble
+    <motion.header
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.3 }}
+      className={`sticky top-0 z-50 w-full border-b transition-all duration-300 ${
+        scrolled
+          ? "border-border/40 bg-background/95 backdrop-blur-lg shadow-sm"
+          : "border-transparent bg-background/80 backdrop-blur-md"
+      }`}
+    >
+      <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        {/* Logo with animation */}
+        <Link href="/" className="flex items-center gap-2 group">
+          <motion.div
+            whileHover={{ rotate: 180, scale: 1.1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Sparkles className="h-6 w-6 text-blue-600" />
+          </motion.div>
+          <span className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            bubble
+          </span>
         </Link>
 
         {/* Mobile menu button */}
-        <button
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={() => setOpen(!open)}
-          className="rounded-xl border border-blue-200 p-2 md:hidden hover:bg-blue-50 transition"
+          className="md:hidden"
           aria-label="Toggle menu"
         >
-          {open ? <X className="h-5 w-5 text-blue-600" /> : <Menu className="h-5 w-5 text-blue-600" />}
-        </button>
+          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </Button>
 
-        {/* Links */}
-        <div
-          className={`${
-            open ? "flex flex-col space-y-3 mt-4" : "hidden"
-          } md:flex md:flex-row md:items-center md:space-y-0 md:space-x-6`}
-        >
-          <Link href="/" className="text-slate-700 hover:text-slate-900 transition-colors">
+        {/* Desktop Links */}
+        <div className="hidden md:flex md:items-center md:gap-6">
+          <NavLink href="/#how" icon={<Sparkles className="h-4 w-4" />}>
             How it works
-          </Link>
-          <Link href="/events" className="text-slate-700 hover:text-slate-900 transition-colors">
+          </NavLink>
+          <NavLink href="/events" icon={<Calendar className="h-4 w-4" />}>
             Events
-          </Link>
-          <Link href="/organisers" className="text-slate-700 hover:text-slate-900 transition-colors">
+          </NavLink>
+          <NavLink href="/organisers" icon={<Users className="h-4 w-4" />}>
             Organiser
-          </Link>
-          {profileName ? (
-            <div ref={wrapperRef} className="relative">
-              <button
-                onClick={() => setOpenMenu((s) => !s)}
-                className="btn btn-outline"
-                aria-expanded={openMenu}
-              >
-                {profileName}
-              </button>
+          </NavLink>
 
-              {openMenu && (
-                <div className="absolute right-0 mt-2 w-44 rounded-md border bg-white shadow-lg">
-                  <a href="/profile" className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Profile</a>
-                  <button
-                    onClick={() => {
-                      try { localStorage.removeItem("bubble.profile"); window.dispatchEvent(new CustomEvent('bubble:auth', { detail: null })); } catch(e){}
-                      // client-side redirect
-                      window.location.href = '/';
-                    }}
-                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-slate-50"
-                  >
-                    Sign out
-                  </button>
-                </div>
-              )}
-            </div>
+          {profileName ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="gap-2">
+                  <User className="h-4 w-4" />
+                  {profileName}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem asChild>
+                  <Link href="/profile" className="cursor-pointer">
+                    <User className="mr-2 h-4 w-4" />
+                    Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSignOut} className="text-red-600 cursor-pointer">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
-            <Link href="/auth" className="btn btn-primary">
-              Sign in
-            </Link>
+            <Button asChild>
+              <Link href="/auth">Sign in</Link>
+            </Button>
           )}
         </div>
+
+        {/* Mobile menu */}
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="absolute top-full left-0 right-0 border-b bg-background/95 backdrop-blur-lg md:hidden"
+            >
+              <div className="flex flex-col space-y-1 p-4">
+                <MobileNavLink href="/#how" icon={<Sparkles className="h-4 w-4" />} onClick={() => setOpen(false)}>
+                  How it works
+                </MobileNavLink>
+                <MobileNavLink href="/events" icon={<Calendar className="h-4 w-4" />} onClick={() => setOpen(false)}>
+                  Events
+                </MobileNavLink>
+                <MobileNavLink href="/organisers" icon={<Users className="h-4 w-4" />} onClick={() => setOpen(false)}>
+                  Organiser
+                </MobileNavLink>
+
+                {profileName ? (
+                  <>
+                    <MobileNavLink href="/profile" icon={<User className="h-4 w-4" />} onClick={() => setOpen(false)}>
+                      Profile
+                    </MobileNavLink>
+                    <button
+                      onClick={() => {
+                        handleSignOut();
+                        setOpen(false);
+                      }}
+                      className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-accent"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Sign out
+                    </button>
+                  </>
+                ) : (
+                  <div className="pt-2">
+                    <Button asChild className="w-full" onClick={() => setOpen(false)}>
+                      <Link href="/auth">Sign in</Link>
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </nav>
-    </header>
+    </motion.header>
+  );
+}
+
+function NavLink({
+  href,
+  icon,
+  children,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      className="flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+    >
+      {icon}
+      {children}
+    </Link>
+  );
+}
+
+function MobileNavLink({
+  href,
+  icon,
+  children,
+  onClick,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+  onClick: () => void;
+}) {
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+    >
+      {icon}
+      {children}
+    </Link>
   );
 }

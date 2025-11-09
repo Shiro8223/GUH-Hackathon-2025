@@ -4,7 +4,20 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
-import { Sparkles, Mail, Lock, User } from "lucide-react";
+import { Sparkles, Mail, Lock, User, AlertCircle } from "lucide-react";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 
 type Mode = "signin" | "signup";
 
@@ -100,165 +113,248 @@ export default function AuthPage() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col bg-white text-slate-900">
+    <main className="flex min-h-screen flex-col bg-background">
       <Navbar />
 
-  {/* Full-width hero wrapper for visual consistency */}
-  <section className="w-full bg-gradient-to-br from-brand-50 to-white py-14">
-        <div className="mx-auto max-w-5xl px-4">
-          <div className="mb-8 flex items-center gap-2 text-slate-600">
-            <Sparkles className="h-5 w-5" />
+      {/* Full-width hero wrapper for visual consistency */}
+      <section className="w-full bg-linear-to-br from-blue-50/50 via-purple-50/30 to-background py-14 relative overflow-hidden flex-1 flex items-center">
+        {/* Animated background */}
+        <motion.div
+          animate={{
+            scale: [1, 1.2, 1],
+            rotate: [0, 90, 0],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+          className="absolute top-0 right-0 w-96 h-96 bg-blue-200/20 rounded-full blur-3xl"
+        />
+
+        <div className="mx-auto max-w-5xl px-4 relative z-10 w-full">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mb-8 flex items-center gap-2 text-muted-foreground"
+          >
+            <Sparkles className="h-5 w-5 text-blue-600" />
             <span className="text-sm">
               Pop your bubble — earn Bubble Points when you show up.
             </span>
-          </div>
+          </motion.div>
 
-          <div className="grid gap-8 md:grid-cols-2">
+          <div className="grid gap-8 md:grid-cols-2 items-start">
             {/* Left: copy */}
-            <div className="space-y-4">
-              <h1 className="text-4xl font-extrabold tracking-tight">
-                {title}.
-                <span className="block text-slate-600">
-                  Meet people outside your course.
-                </span>
-              </h1>
-              <p className="text-slate-700">
-                Use one account across Events and Organiser tools. Switching
-                between <span className="font-semibold">Sign in</span> and{" "}
-                <span className="font-semibold">Sign up</span> keeps your inputs.
-              </p>
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="space-y-6"
+            >
+              <div>
+                <h1 className="text-4xl font-extrabold tracking-tight mb-4">
+                  {title}.
+                  <span className="block text-muted-foreground mt-2">
+                    Meet people outside your course.
+                  </span>
+                </h1>
+                <p className="text-muted-foreground text-lg">
+                  Use one account across Events and Organiser tools. Switching
+                  between <span className="font-semibold">Sign in</span> and{" "}
+                  <span className="font-semibold">Sign up</span> keeps your inputs.
+                </p>
+              </div>
 
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={() => setMode((m) => (m === "signin" ? "signup" : "signin"))}
-                className="btn btn-ghost"
                 aria-live="polite"
               >
                 {mode === "signin" ? "Need an account? Sign up" : "Already have an account? Sign in"}
-              </button>
-            </div>
+              </Button>
+            </motion.div>
 
             {/* Right: auth card */}
-            <form onSubmit={onSubmit} className="card card-accent">
-              <h2 className="mb-4 text-lg font-semibold">{cta}</h2>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+            >
+              <Card className="border-2 shadow-xl">
+                <CardHeader>
+                  <CardTitle className="text-2xl">{cta}</CardTitle>
+                  <CardDescription>
+                    {mode === "signin" 
+                      ? "Sign in to your account to continue" 
+                      : "Create a new account to get started"}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={onSubmit} className="space-y-4">
+                    {errors.length > 0 && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="rounded-lg border-2 border-red-200 bg-red-50 p-3"
+                      >
+                        <div className="flex gap-2">
+                          <AlertCircle className="h-5 w-5 text-red-600 shrink-0" />
+                          <ul className="text-sm text-red-700 space-y-1">
+                            {errors.map((er, i) => (
+                              <li key={i}>{er}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </motion.div>
+                    )}
 
-              {errors.length > 0 && (
-                <div className="mb-4 rounded-xl border border-blue-200 bg-white p-3 text-sm text-red-700">
-                  <ul className="list-disc pl-5">
-                    {errors.map((er, i) => (
-                      <li key={i}>{er}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+                    {notice && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="rounded-lg border-2 border-green-200 bg-green-50 p-3 text-sm text-green-700"
+                      >
+                        {notice}
+                      </motion.div>
+                    )}
 
-              {notice && (
-                <div className="mb-4 rounded-xl border border-blue-200 bg-white p-3 text-sm">
-                  {notice}
-                </div>
-              )}
+                    {/* Sign up-only fields */}
+                    {mode === "signup" && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="space-y-4"
+                      >
+                        <div className="space-y-2">
+                          <Label htmlFor="name">Name</Label>
+                          <div className="relative">
+                            <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              id="name"
+                              value={name}
+                              onChange={(e) => setName(e.target.value)}
+                              className="pl-10"
+                              placeholder="e.g. Alex Johnson"
+                              autoComplete="name"
+                            />
+                          </div>
+                        </div>
 
-              {/* Sign up-only fields */}
-              {mode === "signup" && (
-                <>
-                  <label className="mb-3 block text-sm">
-                    <span className="mb-1 block">Name</span>
-                    <div className="flex items-center gap-2 rounded-xl border border-blue-300 bg-white px-3">
-                      <User className="h-4 w-4 text-blue-600" />
-                      <input
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        className="w-full py-2 outline-none"
-                        placeholder="e.g. Alex Johnson"
-                        autoComplete="name"
-                      />
+                        <div className="space-y-2">
+                          <Label htmlFor="major">Major</Label>
+                          <Select value={major} onValueChange={setMajor}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a major" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {MAJORS.map((m) => (
+                                <SelectItem key={m} value={m}>
+                                  {m}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {/* Email */}
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="email"
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="pl-10"
+                          placeholder="you@university.ac.uk"
+                          autoComplete="email"
+                          required
+                        />
+                      </div>
                     </div>
-                  </label>
 
-                  <label className="mb-3 block text-sm">
-                    <span className="mb-1 block">Major</span>
-                    <select
-                      value={major}
-                      onChange={(e) => setMajor(e.target.value)}
-                      className="w-full rounded-xl border border-blue-300 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-blue-300"
-                    >
-                      <option value="">Select a major</option>
-                      {MAJORS.map((m) => (
-                        <option key={m} value={m}>
-                          {m}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                </>
-              )}
+                    {/* Password */}
+                    <div className="space-y-2">
+                      <Label htmlFor="password">Password</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="password"
+                          type="password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="pl-10"
+                          placeholder="••••••••••"
+                          autoComplete={mode === "signin" ? "current-password" : "new-password"}
+                          required
+                        />
+                      </div>
+                      <p className="text-xs text-muted-foreground">Min 8 characters.</p>
+                    </div>
 
-              {/* Email */}
-              <label className="mb-3 block text-sm">
-                <span className="mb-1 block">Email</span>
-                <div className="flex items-center gap-2 rounded-xl border border-blue-300 bg-white px-3">
-                  <Mail className="h-4 w-4 text-blue-600" />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full py-2 outline-none"
-                    placeholder="you@university.ac.uk"
-                    autoComplete="email"
-                    required
-                  />
-                </div>
-              </label>
+                    {/* Confirm password (signup) */}
+                    {mode === "signup" && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="space-y-2"
+                      >
+                        <Label htmlFor="confirm">Confirm password</Label>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            id="confirm"
+                            type="password"
+                            value={confirm}
+                            onChange={(e) => setConfirm(e.target.value)}
+                            className="pl-10"
+                            placeholder="••••••••••"
+                            autoComplete="new-password"
+                            required
+                          />
+                        </div>
+                      </motion.div>
+                    )}
 
-              {/* Password */}
-              <label className="mb-3 block text-sm">
-                <span className="mb-1 block">Password</span>
-                <div className="flex items-center gap-2 rounded-xl border border-blue-300 bg-white px-3">
-                  <Lock className="h-4 w-4 text-blue-600" />
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full py-2 outline-none"
-                    placeholder="••••••••••"
-                    autoComplete={mode === "signin" ? "current-password" : "new-password"}
-                    required
-                  />
-                </div>
-                <p className="mt-1 text-xs text-slate-600">Min 8 characters.</p>
-              </label>
+                    <Button type="submit" disabled={loading} className="w-full" size="lg">
+                      {loading ? (
+                        <span className="flex items-center gap-2">
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          >
+                            <Sparkles className="h-4 w-4" />
+                          </motion.div>
+                          Please wait...
+                        </span>
+                      ) : (
+                        cta
+                      )}
+                    </Button>
 
-              {/* Confirm password (signup) */}
-              {mode === "signup" && (
-                <label className="mb-3 block text-sm">
-                  <span className="mb-1 block">Confirm password</span>
-                  <div className="flex items-center gap-2 rounded-xl border border-blue-300 bg-white px-3">
-                    <Lock className="h-4 w-4 text-blue-600" />
-                    <input
-                      type="password"
-                      value={confirm}
-                      onChange={(e) => setConfirm(e.target.value)}
-                      className="w-full py-2 outline-none"
-                      placeholder="••••••••••"
-                      autoComplete="new-password"
-                      required
-                    />
-                  </div>
-                </label>
-              )}
-
-              <button type="submit" disabled={loading} className="btn btn-primary w-full">
-                {loading ? "Please wait..." : cta}
-              </button>
-
-              <div className="mt-3 text-center text-sm">
-                <button type="button" onClick={() => setMode((m) => (m === "signin" ? "signup" : "signin"))} className="btn btn-ghost">
-                  {mode === "signin"
-                    ? "No account? Sign up"
-                    : "Have an account? Sign in"}
-                </button>
-              </div>
-            </form>
+                    <div className="text-center">
+                      <Button
+                        type="button"
+                        variant="link"
+                        onClick={() => setMode((m) => (m === "signin" ? "signup" : "signin"))}
+                      >
+                        {mode === "signin"
+                          ? "No account? Sign up"
+                          : "Have an account? Sign in"}
+                      </Button>
+                    </div>
+                  </form>
+                </CardContent>
+              </Card>
+            </motion.div>
           </div>
         </div>
       </section>

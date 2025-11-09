@@ -1,3 +1,10 @@
+"use client";
+import { Calendar, MapPin, Tag, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+
 export type Event = {
   id: string;
   title: string;
@@ -23,35 +30,80 @@ export function EventCard({ e }: { e: Event }) {
   const pts = pointsFor(e);
 
   return (
-    <div className="card card-accent flex flex-col justify-between transition hover:-translate-y-0.5 hover:shadow-md">
-      {/* Image (uniform size). Falls back to a placeholder if no imageUrl provided */}
-      <div className="mb-3 overflow-hidden rounded-xl">
-        <img
-          src={e.imageUrl ?? "https://via.placeholder.com/640x360?text=Event+Image"}
-          alt={e.title}
-          className="card-img"
-        />
-      </div>
-
-      <div>
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">{e.title}</h3>
-          <span className="badge">+{pts} pts</span>
+    <motion.div
+      whileHover={{ y: -8, scale: 1.02 }}
+      transition={{ duration: 0.2 }}
+    >
+      <Card className="h-full flex flex-col justify-between overflow-hidden border-2 hover:border-primary/50 hover:shadow-xl transition-all duration-300">
+        {/* Image */}
+        <div className="relative overflow-hidden h-48 bg-gradient-to-br from-blue-100 to-purple-100">
+          <img
+            src={e.imageUrl ?? "https://via.placeholder.com/640x360?text=Event+Image"}
+            alt={e.title}
+            className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+          />
+          {e.isOppositeOfUserMajor && (
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              <Badge className="absolute top-3 right-3 gap-1 bg-blue-600 text-white">
+                <Sparkles className="h-3 w-3" />
+                Opposite
+              </Badge>
+            </motion.div>
+          )}
         </div>
-        <p className="mt-1 text-sm text-slate-600">{new Date(e.dateISO).toLocaleString()}</p>
-        <p className="text-sm text-slate-600">
-          {e.city} · {e.tags.join(" · ")}
-        </p>
-      </div>
 
-      <div className="mt-4 flex items-center justify-between">
-        {e.isPaid ? (
-          <span className="text-sm text-slate-700">£{e.priceGBP?.toFixed(2)} before points</span>
-        ) : (
-          <span className="text-sm text-green-700">Free</span>
-        )}
-        <button className="btn btn-primary">View</button>
-      </div>
-    </div>
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="text-lg font-semibold line-clamp-2">{e.title}</h3>
+            <Badge variant="secondary" className="gap-1 shrink-0">
+              <Sparkles className="h-3 w-3" />
+              +{pts}
+            </Badge>
+          </div>
+        </CardHeader>
+
+        <CardContent className="pb-3 space-y-2">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Calendar className="h-4 w-4" />
+            {new Date(e.dateISO).toLocaleDateString("en-GB", {
+              weekday: "short",
+              month: "short",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <MapPin className="h-4 w-4" />
+            {e.city}
+          </div>
+          <div className="flex items-start gap-2 text-sm text-muted-foreground">
+            <Tag className="h-4 w-4 mt-0.5" />
+            <div className="flex flex-wrap gap-1">
+              {e.tags.map((tag) => (
+                <Badge key={tag} variant="outline" className="text-xs">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        </CardContent>
+
+        <CardFooter className="pt-3 flex items-center justify-between border-t">
+          {e.isPaid ? (
+            <span className="text-sm font-medium">£{e.priceGBP?.toFixed(2)}</span>
+          ) : (
+            <span className="text-sm font-medium text-green-600">Free</span>
+          )}
+          <Button size="sm" className="gap-2">
+            View Details
+          </Button>
+        </CardFooter>
+      </Card>
+    </motion.div>
   );
 }

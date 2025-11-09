@@ -1,4 +1,7 @@
+"use client";
 import { Compass, Sparkles, TicketPercent } from "lucide-react";
+import { motion } from "framer-motion";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const STEPS = [
   {
@@ -18,49 +21,86 @@ const STEPS = [
   },
 ];
 
+const fadeInUp = {
+  initial: { opacity: 0, y: 30 },
+  animate: { opacity: 1, y: 0 },
+};
+
 export function HowItWorks() {
   return (
     <section
       id="how"
-      className="scroll-mt-24 mx-auto max-w-6xl px-4 py-14"
+      className="scroll-mt-24 mx-auto max-w-6xl px-4 py-20"
     >
-      <div className="mb-6 flex items-end justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">How it works</h2>
-        <span className="text-sm text-slate-500">3 simple steps</span>
-      </div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+        className="mb-12 text-center"
+      >
+        <h2 className="text-4xl font-bold tracking-tight mb-3">How it works</h2>
+        <p className="text-muted-foreground text-lg">3 simple steps to pop your bubble</p>
+      </motion.div>
 
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-8 md:grid-cols-3">
         {STEPS.map(({ title, desc, Icon }, i) => (
-          <div key={title} className="card transition hover:-translate-y-0.5 hover:shadow-md">
-            {/* Step number */}
-            <span className="absolute -top-3 left-4 inline-flex h-8 w-8 items-center justify-center rounded-full border border-blue-200 bg-white text-sm font-semibold text-blue-600 shadow-sm">
-              {i + 1}
-            </span>
+          <motion.div
+            key={title}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.2 }}
+            variants={fadeInUp}
+          >
+            <Card className="relative h-full border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-lg group">
+              {/* Step number */}
+              <div className="absolute -top-4 left-6 inline-flex h-10 w-10 items-center justify-center rounded-full border-2 border-primary bg-background text-lg font-bold text-primary shadow-md group-hover:scale-110 transition-transform">
+                {i + 1}
+              </div>
 
-            {/* Icon */}
-            <div className="mb-4 inline-flex rounded-xl bg-white p-2 shadow-sm">
-              <Icon className="h-5 w-5 text-blue-600" />
-            </div>
+              <CardHeader className="pt-8">
+                {/* Icon */}
+                <motion.div
+                  whileHover={{ rotate: 360, scale: 1.1 }}
+                  transition={{ duration: 0.5 }}
+                  className="mb-4 inline-flex w-fit rounded-xl bg-primary/10 p-3 shadow-sm"
+                >
+                  <Icon className="h-6 w-6 text-primary" />
+                </motion.div>
 
-            <h3 className="text-lg font-semibold">{title}</h3>
-            <p className="mt-2 text-slate-600">{desc}</p>
+                <CardTitle className="text-xl">{title}</CardTitle>
+              </CardHeader>
 
-            {/* Divider + footnote */}
-            <div className="mt-5 h-px w-full bg-gradient-to-r from-transparent via-blue-200/60 to-transparent" />
-            <p className="mt-3 text-xs text-slate-500">
-              Takes under a minute to get personalised picks.
-            </p>
-          </div>
+              <CardContent>
+                <CardDescription className="text-base">{desc}</CardDescription>
+
+                {/* Divider */}
+                <div className="mt-6 h-px w-full bg-linear-to-r from-transparent via-primary/30 to-transparent" />
+                <p className="mt-4 text-xs text-muted-foreground italic">
+                  Takes under a minute to get personalised picks.
+                </p>
+              </CardContent>
+            </Card>
+          </motion.div>
         ))}
       </div>
 
       {/* Info bar */}
-      <div className="mt-10 mx-auto max-w-2xl text-center rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 p-5 text-sm text-slate-700 shadow-sm">
-        Bubble nudges you across disciplines — think 
-        <span className="font-semibold text-blue-600"> Art to STEM</span>, 
-        <span className="font-semibold text-blue-600"> Business to Theatre</span> — 
-        and rewards you when you show up!
-      </div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ delay: 0.6 }}
+        className="mt-12 mx-auto max-w-3xl text-center rounded-2xl border-2 border-blue-200 bg-linear-to-br from-blue-50 to-purple-50 p-6 text-foreground shadow-sm"
+      >
+        <p className="text-lg">
+          Bubble nudges you across disciplines — think 
+          <span className="font-semibold text-blue-600"> Art to STEM</span>, 
+          <span className="font-semibold text-purple-600"> Business to Theatre</span> — 
+          and rewards you when you show up!
+        </p>
+      </motion.div>
     </section>
   );
 }
