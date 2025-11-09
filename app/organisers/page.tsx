@@ -23,6 +23,10 @@ export default function SubmitEventPage() {
   const [previewOpposite, setPreviewOpposite] = useState(true);
   const [submittedId, setSubmittedId] = useState<string | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
+  const [imageUrl, setImageUrl] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
+  const [loading, setLoading] = useState(false);
 
   const tags = useMemo(
     () => tagsText.split(",").map(t => t.trim()).filter(Boolean),
@@ -43,39 +47,102 @@ export default function SubmitEventPage() {
     if (!title.trim()) e.push("Title is required");
     if (!dateISO) e.push("Date & time is required");
     if (!city.trim()) e.push("City is required");
+    if (tags.length === 0) e.push("At least one tag is required");
+    if (recommendedMajors.length === 0) e.push("At least one recommended major is required");
     if (isPaid && (isNaN(priceGBP) || priceGBP <= 0)) e.push("Enter a valid price for paid events");
     return e;
   }
 
-  function onSubmit(e: React.FormEvent) {
+  function handleImageFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setErrors(["Image file size must be less than 5MB"]);
+        return;
+      }
+      setImageFile(file);
+      setImageUrl(""); // Clear URL if file is selected
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  function handleImageUrlChange(url: string) {
+    setImageUrl(url);
+    setImageFile(null);
+    setImagePreview("");
+  }
+
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     const errs = validate();
     setErrors(errs);
     if (errs.length) return;
 
-    const event: Event = {
-      id: crypto.randomUUID(),
-      title: title.trim(),
-      dateISO: new Date(dateISO).toISOString(),
-      city: city.trim(),
-      tags,
-      recommendedMajors,
-      isPaid,
-      priceGBP: isPaid ? Number(priceGBP) : 0,
-      distanceBucket,
-      isOppositeOfUserMajor: false, // calculated per user later
-    };
+    setLoading(true);
+    setErrors([]);
 
-    const raw = localStorage.getItem("bubble.events");
-    const arr = raw ? (JSON.parse(raw) as Event[]) : [];
-    arr.push(event);
-    localStorage.setItem("bubble.events", JSON.stringify(arr));
-    setSubmittedId(event.id);
+    try {
+      // Get image URL - either from file (base64) or URL input
+      let finalImageUrl = imageUrl;
+      if (imageFile && imagePreview) {
+        // Use base64 data URL from file upload
+        finalImageUrl = imagePreview;
+      }
 
-    // reset a bit
-    setTitle(""); setDescription(""); setDateISO(""); setCity("");
-    setTagsText(""); setRecommendedMajors([]); setIsPaid(false);
-    setPriceGBP(0); setDistanceBucket("local");
+      const eventData = {
+        title: title.trim(),
+        dateISO: new Date(dateISO).toISOString(),
+        city: city.trim(),
+        tags,
+        recommendedMajors,
+        isPaid,
+        priceGBP: isPaid ? Number(priceGBP) : null,
+        distanceBucket,
+        isOppositeOfUserMajor: false, // calculated per user later
+        imageUrl: finalImageUrl || null,
+      };
+
+      const response = await fetch("/api/events", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(eventData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        setErrors([errorData.error || "Failed to create event"]);
+        setLoading(false);
+        return;
+      }
+
+      const result = await response.json();
+      setSubmittedId(result.event.id);
+
+      // Reset form
+      setTitle(""); 
+      setDescription(""); 
+      setDateISO(""); 
+      setCity("");
+      setTagsText(""); 
+      setRecommendedMajors([]); 
+      setIsPaid(false);
+      setPriceGBP(0); 
+      setDistanceBucket("local");
+      setImageUrl("");
+      setImageFile(null);
+      setImagePreview("");
+    } catch (error) {
+      console.error("Error submitting event:", error);
+      setErrors(["Failed to submit event. Please try again."]);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -83,7 +150,7 @@ export default function SubmitEventPage() {
       <Navbar />
       <section className="mx-auto max-w-5xl px-4 py-10">
         <h1 className="mb-2 text-3xl font-bold">Submit an event</h1>
-        <p className="mb-6 text-slate-600">Fill in the details below. Events save locally for the demo.</p>
+        <p className="mb-6 text-slate-600">Fill in the details below. Your event will appear on the events page once submitted.</p>
 
         {errors.length > 0 && (
           <div className="mb-4 rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 p-4 text-sm shadow-sm">
@@ -94,8 +161,10 @@ export default function SubmitEventPage() {
         )}
 
         {submittedId && (
-          <div className="mb-4 rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 p-4 text-sm shadow-sm">
-            <b>Event saved!</b> View it on <a className="underline" href="/events">the Events page</a>.
+          <div className="mb-4 rounded-2xl border border-green-200 bg-gradient-to-br from-green-50 to-green-100 p-4 text-sm shadow-sm">
+            <b className="text-green-800">Event created successfully!</b>{" "}
+            <span className="text-green-700">Your event has been added to the database. </span>
+            <a className="underline text-green-800 font-semibold" href="/events">View it on the Events page</a>.
           </div>
         )}
 
@@ -149,14 +218,49 @@ export default function SubmitEventPage() {
               </div>
 
               <label className="block text-sm">
-                <span className="mb-1 block">Tags (comma-separated)</span>
+                <span className="mb-1 block">Tags (comma-separated) *</span>
                 <input
                   value={tagsText}
                   onChange={(e) => setTagsText(e.target.value)}
                   className="w-full rounded-xl border border-blue-300 bg-white px-3 py-2 outline-none transition focus:ring-2 focus:ring-blue-300"
                   placeholder="STEM, Makers, Robotics"
+                  aria-required
                 />
               </label>
+
+              <div className="space-y-2">
+                <label className="block text-sm">
+                  <span className="mb-1 block">Event Image (optional)</span>
+                  <div className="space-y-2">
+                    <input
+                      type="url"
+                      value={imageUrl}
+                      onChange={(e) => handleImageUrlChange(e.target.value)}
+                      className="w-full rounded-xl border border-blue-300 bg-white px-3 py-2 outline-none transition focus:ring-2 focus:ring-blue-300"
+                      placeholder="https://example.com/image.jpg"
+                    />
+                    <div className="text-center text-xs text-slate-500">OR</div>
+                    <label className="block">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageFileChange}
+                        className="w-full rounded-xl border border-blue-300 bg-white px-3 py-2 outline-none transition focus:ring-2 focus:ring-blue-300 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                      />
+                      <span className="text-xs text-slate-500 block mt-1">Max 5MB</span>
+                    </label>
+                    {imagePreview && (
+                      <div className="mt-2">
+                        <img
+                          src={imagePreview}
+                          alt="Preview"
+                          className="w-full h-32 object-cover rounded-xl border border-blue-300"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </label>
+              </div>
             </div>
           </section>
 
@@ -165,7 +269,7 @@ export default function SubmitEventPage() {
             <h2 className="text-lg font-semibold">Audience & pricing</h2>
             <div className="mt-4 space-y-4">
               <div>
-                <span className="mb-2 block text-sm">Recommended majors</span>
+                <span className="mb-2 block text-sm">Recommended majors *</span>
                 <div className="grid grid-cols-2 gap-2">
                   {MAJORS.map((m) => {
                     const checked = recommendedMajors.includes(m);
@@ -251,9 +355,10 @@ export default function SubmitEventPage() {
           <div className="md:col-span-2 flex items-center gap-3">
             <button
               type="submit"
-              className="rounded-xl bg-blue-600 px-5 py-2 text-white shadow-sm transition hover:shadow-md hover:-translate-y-0.5"
+              disabled={loading}
+              className="rounded-xl bg-blue-600 px-5 py-2 text-white shadow-sm transition hover:shadow-md hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Submit event
+              {loading ? "Submitting..." : "Submit event"}
             </button>
             <a href="/events" className="text-sm underline">Go to Events</a>
           </div>

@@ -38,7 +38,7 @@ export default async function EventsPage() {
       <section className="mx-auto max-w-6xl px-4 py-16">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold">All Events</h1>
-          <Link href="/events/add">
+          <Link href="/organisers">
             <Button>Add Event</Button>
           </Link>
         </div>
