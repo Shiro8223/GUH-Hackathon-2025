@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
 import { Sparkles, Mail, Lock, User } from "lucide-react";
@@ -8,6 +9,7 @@ import { Sparkles, Mail, Lock, User } from "lucide-react";
 type Mode = "signin" | "signup";
 
 export default function AuthPage() {
+  const router = useRouter();
   const [mode, setMode] = useState<Mode>("signin");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -49,28 +51,60 @@ export default function AuthPage() {
     if (errs.length) return setErrors(errs);
 
     setLoading(true);
-    // Mock auth flow for demo
-    await new Promise((r) => setTimeout(r, 700));
+    try {
+      const endpoint = mode === "signin" ? "/api/auth/signin" : "/api/auth/signup";
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: name.trim(),
+          email,
+          password,
+          major,
+        }),
+      });
 
-    if (mode === "signin") {
-      setNotice("Signed in! (demo)");
-    } else {
-      setNotice("Account created! (demo)");
-      // Persist a tiny demo profile locally
-      localStorage.setItem(
-        "bubble.profile",
-        JSON.stringify({ name: name.trim(), email, major })
-      );
+      const data = await response.json();
+
+      if (!response.ok) {
+        setErrors([data.error]);
+        return;
+      }
+
+      // Store user data in localStorage
+      localStorage.setItem("bubble.profile", JSON.stringify(data.user));
+      // Notify other components (Navbar) that auth state changed
+      try {
+        window.dispatchEvent(new CustomEvent("bubble:auth", { detail: data.user }));
+      } catch (e) {
+        /* ignore */
+      }
+      setNotice(mode === "signin" ? "Signed in successfully!" : "Account created successfully!");
+
+      // Redirect user to their profile page
+      try {
+        router.push("/profile");
+      } catch (e) {
+        // ignore navigation errors in tests/environments
+      }
+
+      // Optional: Redirect to home page after successful auth
+      // window.location.href = "/";
+    } catch (error) {
+      setErrors(["An unexpected error occurred. Please try again."]);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   return (
     <main className="flex min-h-screen flex-col bg-white text-slate-900">
       <Navbar />
 
-      {/* Full-width hero wrapper for visual consistency */}
-      <section className="w-full bg-gradient-to-br from-blue-50 to-blue-100 py-14">
+  {/* Full-width hero wrapper for visual consistency */}
+  <section className="w-full bg-gradient-to-br from-brand-50 to-white py-14">
         <div className="mx-auto max-w-5xl px-4">
           <div className="mb-8 flex items-center gap-2 text-slate-600">
             <Sparkles className="h-5 w-5" />
@@ -97,7 +131,7 @@ export default function AuthPage() {
               <button
                 type="button"
                 onClick={() => setMode((m) => (m === "signin" ? "signup" : "signin"))}
-                className="rounded-2xl border border-blue-300 px-5 py-2 text-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                className="btn btn-ghost"
                 aria-live="polite"
               >
                 {mode === "signin" ? "Need an account? Sign up" : "Already have an account? Sign in"}
@@ -105,10 +139,7 @@ export default function AuthPage() {
             </div>
 
             {/* Right: auth card */}
-            <form
-              onSubmit={onSubmit}
-              className="rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 p-6 shadow-sm"
-            >
+            <form onSubmit={onSubmit} className="card card-accent">
               <h2 className="mb-4 text-lg font-semibold">{cta}</h2>
 
               {errors.length > 0 && (
@@ -216,20 +247,12 @@ export default function AuthPage() {
                 </label>
               )}
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="mt-2 w-full rounded-2xl bg-blue-600 px-5 py-3 text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md disabled:opacity-60"
-              >
+              <button type="submit" disabled={loading} className="btn btn-primary w-full">
                 {loading ? "Please wait..." : cta}
               </button>
 
               <div className="mt-3 text-center text-sm">
-                <button
-                  type="button"
-                  onClick={() => setMode((m) => (m === "signin" ? "signup" : "signin"))}
-                  className="underline"
-                >
+                <button type="button" onClick={() => setMode((m) => (m === "signin" ? "signup" : "signin"))} className="btn btn-ghost">
                   {mode === "signin"
                     ? "No account? Sign up"
                     : "Have an account? Sign in"}

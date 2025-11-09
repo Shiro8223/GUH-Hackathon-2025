@@ -4,6 +4,7 @@ export type Event = {
   dateISO: string;
   city: string;
   tags: string[];
+  imageUrl?: string;
   recommendedMajors: string[];
   isPaid: boolean;
   priceGBP?: number;
@@ -22,11 +23,20 @@ export function EventCard({ e }: { e: Event }) {
   const pts = pointsFor(e);
 
   return (
-    <div className="flex flex-col justify-between rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+    <div className="card card-accent flex flex-col justify-between transition hover:-translate-y-0.5 hover:shadow-md">
+      {/* Image (uniform size). Falls back to a placeholder if no imageUrl provided */}
+      <div className="mb-3 overflow-hidden rounded-xl">
+        <img
+          src={e.imageUrl ?? "https://via.placeholder.com/640x360?text=Event+Image"}
+          alt={e.title}
+          className="card-img"
+        />
+      </div>
+
       <div>
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">{e.title}</h3>
-          <span className="rounded-full bg-blue-100 px-3 py-1 text-sm">+{pts} pts</span>
+          <span className="badge">+{pts} pts</span>
         </div>
         <p className="mt-1 text-sm text-slate-600">{new Date(e.dateISO).toLocaleString()}</p>
         <p className="text-sm text-slate-600">
@@ -36,13 +46,11 @@ export function EventCard({ e }: { e: Event }) {
 
       <div className="mt-4 flex items-center justify-between">
         {e.isPaid ? (
-          <span className="text-sm text-slate-700">
-            £{e.priceGBP?.toFixed(2)} before points
-          </span>
+          <span className="text-sm text-slate-700">£{e.priceGBP?.toFixed(2)} before points</span>
         ) : (
           <span className="text-sm text-green-700">Free</span>
         )}
-        <button className="rounded-xl bg-blue-600 px-4 py-2 text-white">View</button>
+        <button className="btn btn-primary">View</button>
       </div>
     </div>
   );

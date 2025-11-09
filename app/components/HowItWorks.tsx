@@ -31,17 +31,14 @@ export function HowItWorks() {
 
       <div className="grid gap-6 md:grid-cols-3">
         {STEPS.map(({ title, desc, Icon }, i) => (
-          <div
-            key={title}
-            className="relative rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-          >
+          <div key={title} className="card transition hover:-translate-y-0.5 hover:shadow-md">
             {/* Step number */}
             <span className="absolute -top-3 left-4 inline-flex h-8 w-8 items-center justify-center rounded-full border border-blue-200 bg-white text-sm font-semibold text-blue-600 shadow-sm">
               {i + 1}
             </span>
 
             {/* Icon */}
-            <div className="mb-4 inline-flex rounded-xl border border-blue-200 bg-white p-2 shadow-sm">
+            <div className="mb-4 inline-flex rounded-xl bg-white p-2 shadow-sm">
               <Icon className="h-5 w-5 text-blue-600" />
             </div>
 
