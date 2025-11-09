@@ -18,7 +18,7 @@ async function getFeaturedEvents(): Promise<Event[]> {
     take: 7, // Limit to 7 events for the carousel
   });
 
-  return events.map((event) => ({
+  return events.map((event: Awaited<ReturnType<typeof prisma.event.findMany>>[number]) => ({
     id: event.id,
     title: event.title,
     dateISO: event.dateISO,
@@ -30,6 +30,7 @@ async function getFeaturedEvents(): Promise<Event[]> {
     priceGBP: event.priceGBP || undefined,
     distanceBucket: event.distanceBucket as "local" | "nearby" | "city-away",
     isOppositeOfUserMajor: event.isOppositeOfUserMajor,
+    hasFirstTimeBonus: event.hasFirstTimeBonus || false,
   }));
 }
 

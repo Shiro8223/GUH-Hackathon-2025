@@ -74,6 +74,7 @@ export async function GET() {
       ...event,
       tags: JSON.parse(event.tags),
       recommendedMajors: JSON.parse(event.recommendedMajors),
+      hasFirstTimeBonus: event.hasFirstTimeBonus || false,
     }));
 
     return NextResponse.json({ events: parsedEvents }, { status: 200 });

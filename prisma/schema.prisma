@@ -32,6 +32,7 @@ model Event {
   priceGBP               Float?
   distanceBucket         String   // "local" | "nearby" | "city-away"
   isOppositeOfUserMajor  Boolean  @default(false)
+  hasFirstTimeBonus      Boolean  @default(false)
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
 }

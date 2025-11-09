@@ -12,6 +12,7 @@ const mockEvents = [
     distanceBucket: "city-away",
     priceGBP: 0,
     isOppositeOfUserMajor: true,
+    hasFirstTimeBonus: true,
   },
   {
     title: "Stand-up Comedy Night",

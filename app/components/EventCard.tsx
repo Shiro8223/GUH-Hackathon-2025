@@ -18,6 +18,7 @@ export type Event = {
   priceGBP?: number;
   distanceBucket: "local" | "nearby" | "city-away";
   isOppositeOfUserMajor: boolean;
+  hasFirstTimeBonus?: boolean;
 };
 
 function pointsFor(event: Event) {
@@ -44,18 +45,32 @@ export function EventCard({ e, clickableCard = true }: { e: Event; clickableCard
             alt={e.title}
             className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
           />
-          {e.isOppositeOfUserMajor && (
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2 }}
-            >
-              <Badge className="absolute top-3 right-3 gap-1 bg-blue-600 text-white">
-                <Sparkles className="h-3 w-3" />
-                Opposite
-              </Badge>
-            </motion.div>
-          )}
+          <div className="absolute top-3 right-3 flex flex-col gap-2">
+            {e.isOppositeOfUserMajor && (
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                <Badge className="gap-1 bg-blue-600 text-white">
+                  <Sparkles className="h-3 w-3" />
+                  Opposite
+                </Badge>
+              </motion.div>
+            )}
+            {e.hasFirstTimeBonus && (
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.3 }}
+              >
+                <Badge className="gap-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0">
+                  <Sparkles className="h-3 w-3" />
+                  First Time Bonus
+                </Badge>
+              </motion.div>
+            )}
+          </div>
         </div>
 
         <CardHeader className="pb-3">

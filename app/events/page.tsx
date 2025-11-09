@@ -26,6 +26,7 @@ async function getEvents(): Promise<Event[]> {
     priceGBP: event.priceGBP || undefined,
     distanceBucket: event.distanceBucket as "local" | "nearby" | "city-away",
     isOppositeOfUserMajor: event.isOppositeOfUserMajor,
+    hasFirstTimeBonus: event.hasFirstTimeBonus || false,
   }));
 }
 
