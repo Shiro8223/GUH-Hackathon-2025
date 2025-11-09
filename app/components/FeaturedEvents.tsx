@@ -86,7 +86,7 @@ export function FeaturedEvents({ events }: Props) {
   const items = [...events, ...events];
 
   return (
-    <section id="events" className="w-full py-20 bg-linear-to-b from-background to-muted/20">
+    <section id="events" className="w-full py-20 bg-gradient-to-br from-indigo-600 via-violet-400 to-white">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -96,12 +96,12 @@ export function FeaturedEvents({ events }: Props) {
       >
         <div className="flex items-end justify-between">
           <div>
-            <h2 className="text-4xl font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+            <h2 className="text-4xl font-bold text-white mb-2">
               Opposites for you
             </h2>
-            <p className="text-muted-foreground text-lg">Discover events outside your comfort zone</p>
+            <p className="text-white/90 text-lg">Discover events outside your comfort zone</p>
           </div>
-          <Button asChild variant="ghost" className="gap-2">
+          <Button asChild variant="ghost" className="gap-2 text-white hover:bg-white/20">
             <Link href="/events">
               See all
               <ArrowRight className="h-4 w-4" />
@@ -126,8 +126,8 @@ export function FeaturedEvents({ events }: Props) {
           </div>
         </div>
         
-        <div className="absolute left-0 top-0 bottom-0 w-12 bg-linear-to-r from-background to-transparent pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-12 bg-linear-to-l from-background to-transparent pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-indigo-600 to-transparent pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white to-transparent pointer-events-none" />
       </div>
     </section>
   );

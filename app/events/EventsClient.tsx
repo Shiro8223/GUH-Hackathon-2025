@@ -96,7 +96,7 @@ export default function EventsClient({ initialEvents }: Props) {
       <div className="grid gap-6 md:grid-cols-3">
         {filtered.length === 0 && <div>No events match your filters.</div>}
         {filtered.map((ev) => (
-          <EventCard key={ev.id} e={ev} />
+          <EventCard key={ev.id} e={ev} clickableCard={false} />
         ))}
       </div>
     </div>

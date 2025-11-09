@@ -21,7 +21,7 @@ const stagger = {
 
 export function Hero() {
   return (
-    <section className="w-full bg-linear-to-br from-blue-50/50 via-purple-50/30 to-background py-20 relative overflow-hidden">
+    <section className="w-full bg-gradient-to-br from-indigo-600 via-violet-400 to-white py-20 relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
@@ -58,7 +58,7 @@ export function Hero() {
           className="space-y-6"
         >
           <motion.div variants={fadeInUp}>
-            <Badge variant="secondary" className="mb-4 gap-2">
+            <Badge variant="secondary" className="mb-4 gap-2 bg-white/90 text-indigo-900 border-white/50">
               <Sparkles className="h-3 w-3" />
               Break out of your bubble
             </Badge>
@@ -66,17 +66,17 @@ export function Hero() {
 
           <motion.h1
             variants={fadeInUp}
-            className="text-5xl font-extrabold tracking-tight md:text-6xl"
+            className="text-5xl font-extrabold tracking-tight md:text-6xl text-white"
           >
             Pop your bubble.
-            <span className="block text-muted-foreground mt-2">
+            <span className="block text-white/90 mt-2">
               Meet people outside your course.
             </span>
           </motion.h1>
 
-          <motion.p variants={fadeInUp} className="text-lg text-muted-foreground">
+          <motion.p variants={fadeInUp} className="text-lg text-white/95">
             Bubble recommends events{" "}
-            <span className="font-semibold text-foreground">outside your major</span> and comfort
+            <span className="font-semibold text-white">outside your major</span> and comfort
             zone. Earn Bubble Points for stretching yourself and use them to
             discount paid tickets.
           </motion.p>
@@ -88,16 +88,16 @@ export function Hero() {
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="text-black">
+            <Button asChild variant="outline" size="lg" className="text-indigo-900 border-indigo-900 hover:bg-indigo-50">
               <Link href="/organisers">Create an event</Link>
             </Button>
           </motion.div>
 
           <motion.div
             variants={fadeInUp}
-            className="flex items-center gap-2 text-sm text-muted-foreground p-4 rounded-lg bg-background/50 backdrop-blur-sm border"
+            className="flex items-center gap-2 text-sm text-white/90 p-4 rounded-lg bg-white/20 backdrop-blur-sm border border-white/30"
           >
-            <Zap className="h-4 w-4 text-yellow-500" />
+            <Zap className="h-4 w-4 text-yellow-300" />
             <span>
               Opposites attract: Art meets STEM, Business meets Theatre, and more.
             </span>
@@ -109,7 +109,7 @@ export function Hero() {
           initial="initial"
           animate="animate"
           variants={stagger}
-          className="grid grid-cols-2 gap-4 text-black"
+          className="grid grid-cols-2 gap-4"
         >
           <EventWidget
             title="Tonight · 19:00"
@@ -164,11 +164,11 @@ function EventWidget({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.5 }}
       whileHover={{ scale: 1.05, y: -5 }}
-      className="bg-card border rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+      className="bg-white/95 border border-white/30 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow cursor-pointer backdrop-blur-sm"
     >
-      <h3 className="font-semibold text-sm">{title}</h3>
-      <p className="text-sm text-muted-foreground mt-1">{event}</p>
-      <p className="text-xs text-muted-foreground">({category})</p>
+      <h3 className="font-semibold text-sm text-slate-900">{title}</h3>
+      <p className="text-sm text-slate-700 mt-1">{event}</p>
+      <p className="text-xs text-slate-600">({category})</p>
       <Badge variant="secondary" className="mt-2 gap-1">
         <Sparkles className="h-3 w-3" />
         +{points} pts

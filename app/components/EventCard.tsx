@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export type Event = {
   id: string;
@@ -26,13 +27,14 @@ function pointsFor(event: Event) {
   return base + majorBonus + distanceBonus; // 10..100
 }
 
-export function EventCard({ e }: { e: Event }) {
+export function EventCard({ e, clickableCard = true }: { e: Event; clickableCard?: boolean }) {
   const pts = pointsFor(e);
 
-  return (
+  const cardContent = (
     <motion.div
       whileHover={{ y: -8, scale: 1.02 }}
       transition={{ duration: 0.2 }}
+      className={clickableCard ? "cursor-pointer" : ""}
     >
       <Card className="h-full flex flex-col justify-between overflow-hidden border-2 hover:border-primary/50 hover:shadow-xl transition-all duration-300">
         {/* Image */}
@@ -99,11 +101,29 @@ export function EventCard({ e }: { e: Event }) {
           ) : (
             <span className="text-sm font-medium text-green-600">Free</span>
           )}
-          <Button size="sm" className="gap-2">
-            View Details
-          </Button>
+          {clickableCard ? (
+            <Button size="sm" className="gap-2" type="button">
+              View Details
+            </Button>
+          ) : (
+            <Link href={`/events/${e.id}`}>
+              <Button size="sm" className="gap-2">
+                View Details
+              </Button>
+            </Link>
+          )}
         </CardFooter>
       </Card>
     </motion.div>
   );
+
+  if (clickableCard) {
+    return (
+      <Link href={`/events/${e.id}`}>
+        {cardContent}
+      </Link>
+    );
+  }
+
+  return cardContent;
 }

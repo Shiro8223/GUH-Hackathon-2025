@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
 import { User, LogOut } from "lucide-react";
+import { type Event } from "../components/EventCard";
 
 type Profile = {
   id: string;
@@ -18,34 +19,45 @@ export default function ProfilePage() {
   const [points, setPoints] = useState<number>(0);
   const [rsvps, setRsvps] = useState<string[]>([]);
   const [usedDiscounts, setUsedDiscounts] = useState<Record<string, boolean>>({});
+  const [rsvpedEvents, setRsvpedEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem("bubble.profile");
-      if (raw) setProfile(JSON.parse(raw));
-      const p = localStorage.getItem("bubble.points");
-      if (p) setPoints(Number(p));
-      else {
-        // seed with a demo value
-        setPoints(120);
-        localStorage.setItem("bubble.points", String(120));
-      }
+    async function loadData() {
+      try {
+        const raw = localStorage.getItem("bubble.profile");
+        if (raw) setProfile(JSON.parse(raw));
+        const p = localStorage.getItem("bubble.points");
+        if (p) setPoints(Number(p));
+        else {
+          // seed with a demo value
+          setPoints(120);
+          localStorage.setItem("bubble.points", String(120));
+        }
 
-      const r = localStorage.getItem("bubble.rsvps");
-      if (r) setRsvps(JSON.parse(r));
-      else {
-        // seed with demo RSVPs (event ids)
-        const seed = ["1", "5"];
-        setRsvps(seed);
-        localStorage.setItem("bubble.rsvps", JSON.stringify(seed));
-      }
+        const r = localStorage.getItem("bubble.rsvps");
+        const rsvpIds = r ? JSON.parse(r) : [];
+        setRsvps(rsvpIds);
 
-      const ud = localStorage.getItem("bubble.usedDiscounts");
-      if (ud) setUsedDiscounts(JSON.parse(ud));
-    } catch (e) {
-      // ignore
+        // Fetch events from API
+        const response = await fetch("/api/events");
+        const data = await response.json();
+        const allEvents: Event[] = data.events;
+        
+        // Filter to only RSVPed events
+        const rsvped = allEvents.filter((e: Event) => rsvpIds.includes(e.id));
+        setRsvpedEvents(rsvped);
+
+        const ud = localStorage.getItem("bubble.usedDiscounts");
+        if (ud) setUsedDiscounts(JSON.parse(ud));
+      } catch (e) {
+        console.error("Error loading profile data:", e);
+      } finally {
+        setLoading(false);
+      }
     }
+    loadData();
   }, []);
 
   function signOut() {
@@ -53,33 +65,16 @@ export default function ProfilePage() {
     router.push("/");
   }
 
-  // Mock events to display — these mirror the events used elsewhere for demo purposes
+  // Mock events for discounts section (keeping this for now as discounts are separate)
   const mockEvents = [
-    {
-      id: "1",
-      title: "Intro to 3D Printing Workshop",
-      dateISO: new Date().toISOString(),
-      city: "Manchester",
-      imageUrl: "https://via.placeholder.com/640x360?text=3D+Printing+Workshop",
-      priceGBP: 0,
-      discount: null,
-    },
     {
       id: "5",
       title: "AI in Healthcare Symposium",
-      dateISO: new Date(Date.now() + 4 * 86400000).toISOString(),
-      city: "Manchester",
-      imageUrl: "https://via.placeholder.com/640x360?text=AI+Healthcare",
-      priceGBP: 25,
       discount: { id: 'd1', label: '20% off', costPoints: 50 },
     },
     {
       id: "7",
       title: "Game Development Hackathon",
-      dateISO: new Date(Date.now() + 6 * 86400000).toISOString(),
-      city: "Manchester",
-      imageUrl: "https://via.placeholder.com/640x360?text=Game+Dev+Hackathon",
-      priceGBP: 0,
       discount: { id: 'd2', label: 'Free swag pack', costPoints: 30 },
     },
   ];
@@ -96,6 +91,8 @@ export default function ProfilePage() {
     const next = rsvps.filter((x) => x !== id);
     setRsvps(next);
     localStorage.setItem("bubble.rsvps", JSON.stringify(next));
+    // Update the displayed events
+    setRsvpedEvents(rsvpedEvents.filter((e) => e.id !== id));
   }
 
   function redeemDiscount(eventId: string, discountId: string, costPoints: number) {
@@ -136,7 +133,7 @@ export default function ProfilePage() {
                 <div className="text-xs text-slate-500">Bubble Points</div>
                 <div className="mt-2 flex items-center gap-3">
                   <div className="rounded-full bg-white px-3 py-2 text-sm font-semibold text-blue-700 shadow-sm">{points}</div>
-                  <div className="text-sm text-slate-600">Points can be redeemed for discounts and swag.</div>
+                  <div className="text-sm text-slate-600">Points can be redeemed for discounts and events.</div>
                 </div>
               </div>
             </div>
@@ -157,22 +154,29 @@ export default function ProfilePage() {
               <div className="rounded-xl border border-slate-100 bg-white p-4">
                 <h4 className="text-sm text-slate-500">Upcoming events</h4>
                 <div className="mt-3 space-y-3">
-                  {mockEvents.filter(e => rsvps.includes(e.id)).length === 0 && (
+                  {loading ? (
+                    <p className="text-sm text-slate-700">Loading events...</p>
+                  ) : rsvpedEvents.length === 0 ? (
                     <p className="text-sm text-slate-700">You haven't signed up to any events yet.</p>
+                  ) : (
+                    rsvpedEvents.map((ev) => (
+                      <div key={ev.id} className="flex items-center gap-3 rounded-md border bg-[var(--brand-50)] p-3 shadow-sm">
+                        <img 
+                          src={ev.imageUrl ?? "https://via.placeholder.com/640x360?text=Event+Image"} 
+                          className="h-14 w-24 rounded-md object-cover" 
+                          alt={ev.title} 
+                        />
+                        <div className="flex-1">
+                          <div className="font-medium text-slate-900">{ev.title}</div>
+                          <div className="text-xs text-slate-500">{formatDate(ev.dateISO)} • {ev.city}</div>
+                        </div>
+                        <div className="flex flex-col items-end gap-2">
+                          <div className="text-sm font-semibold text-slate-900">{ev.isPaid ? `£${ev.priceGBP?.toFixed(2)}` : "Free"}</div>
+                          <button onClick={() => cancelRsvp(ev.id)} className="btn btn-ghost text-xs">Cancel</button>
+                        </div>
+                      </div>
+                    ))
                   )}
-                  {mockEvents.filter(e => rsvps.includes(e.id)).map((ev) => (
-                    <div key={ev.id} className="flex items-center gap-3 rounded-md border bg-[var(--brand-50)] p-3 shadow-sm">
-                      <img src={ev.imageUrl} className="h-14 w-24 rounded-md object-cover" alt={ev.title} />
-                      <div className="flex-1">
-                        <div className="font-medium">{ev.title}</div>
-                        <div className="text-xs text-black text-slate-500">{formatDate(ev.dateISO)} • {ev.city}</div>
-                      </div>
-                      <div className="flex flex-col items-end gap-2">
-                        <div className="text-sm font-semibold">{ev.priceGBP === 0 ? "Free" : `£${ev.priceGBP}`}</div>
-                        <button onClick={() => cancelRsvp(ev.id)} className="btn btn-ghost text-xs">Cancel</button>
-                      </div>
-                    </div>
-                  ))}
                 </div>
               </div>
 
@@ -189,7 +193,7 @@ export default function ProfilePage() {
                     return (
                       <div key={ev.id} className="flex items-center justify-between gap-3 rounded-md border bg-[var(--brand-50)] p-3 shadow-sm">
                         <div>
-                          <div className="font-medium">{d.label} — {ev.title}</div>
+                          <div className="font-medium text-slate-500">{d.label} — {ev.title}</div>
                           <div className="text-xs text-slate-500">Cost: {d.costPoints} points</div>
                         </div>
                         <div className="flex flex-col items-end">
